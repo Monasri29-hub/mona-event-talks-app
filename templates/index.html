@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes & Share Hub</title>
+    <meta name="description" content="Browse, search, and tweet Google BigQuery release notes. A premium developer assistant tool.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- JavaScript -->
+    <script src="/static/main.js" defer></script>
+</head>
+<body>
+    <div class="glass-bg-decor decor-1"></div>
+    <div class="glass-bg-decor decor-2"></div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-area">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M3 5V19A9 3 0 0 0 21 19V5"></path>
+                            <path d="M3 12A9 3 0 0 0 21 12"></path>
+                        </svg>
+                    </div>
+                    <h1>BigQuery <span class="gradient-text">Release Hub</span></h1>
+                </div>
+                <p class="subtitle">Stay updated on Google Cloud BigQuery and easily share new features to your network.</p>
+            </div>
+            
+            <div class="header-right">
+                <div class="cache-status-container">
+                    <span id="cache-dot" class="status-dot"></span>
+                    <span id="cache-status-text">Loading...</span>
+                </div>
+                <button id="refresh-btn" class="btn btn-primary" title="Fetch latest release notes">
+                    <svg id="refresh-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Filters & Search -->
+        <section class="control-panel">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" rx="8" ry="8"></ellipse>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search release notes by keywords (e.g. embeddings, parquet, security)...">
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label">Filter by type:</span>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-type="all">All</button>
+                    <button class="filter-btn" data-type="feature">Features</button>
+                    <button class="filter-btn" data-type="changed">Changes</button>
+                    <button class="filter-btn" data-type="deprecated">Deprecations</button>
+                    <button class="filter-btn" data-type="other">Others</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Left: Release Notes Feed -->
+            <section class="feed-section">
+                <div class="section-header">
+                    <h2>Recent Updates</h2>
+                    <span id="results-count" class="badge">0 updates</span>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="feed-loading" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Fetching BigQuery release notes...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="feed-error" class="error-state hidden">
+                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h3>Failed to Load Feed</h3>
+                    <p id="error-message">Could not fetch release notes from BigQuery.</p>
+                    <button id="retry-btn" class="btn btn-secondary">Retry Now</button>
+                </div>
+
+                <!-- Feed Container -->
+                <div id="notes-container" class="notes-container"></div>
+            </section>
+
+            <!-- Right: Tweet & Share Builder -->
+            <section class="share-section">
+                <div class="sticky-panel">
+                    <div class="section-header">
+                        <h2>Share Center</h2>
+                        <span class="badge badge-accent">Beta</span>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="share-empty" class="share-empty-state">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 2L11 13"></path>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        <h3>Select an Update</h3>
+                        <p>Click on any release note card on the left to load it here and generate a Tweet template.</p>
+                    </div>
+
+                    <!-- Builder Interface (Hidden by default) -->
+                    <div id="share-builder" class="share-builder hidden">
+                        <div class="selected-note-preview">
+                            <span id="builder-tag" class="tag">Feature</span>
+                            <span id="builder-date" class="date-text">June 17, 2026</span>
+                            <div id="builder-source-text" class="source-preview"></div>
+                        </div>
+
+                        <!-- Tweet Configuration Options -->
+                        <div class="builder-options">
+                            <h3>Customize Tweet Tone</h3>
+                            <div class="tone-buttons">
+                                <button class="tone-btn active" data-tone="professional">💼 Tech Pro</button>
+                                <button class="tone-btn" data-tone="excited">⚡ Enthusiastic</button>
+                                <button class="tone-btn" data-tone="analytical">📊 Analytical</button>
+                                <button class="tone-btn" data-tone="minimal">✏️ Short & Sweet</button>
+                            </div>
+
+                            <h3>Include Hashtags</h3>
+                            <div class="hashtag-toggles">
+                                <label class="hashtag-pill checked" data-hash="#BigQuery">
+                                    <input type="checkbox" checked value="#BigQuery"> #BigQuery
+                                </label>
+                                <label class="hashtag-pill checked" data-hash="#GoogleCloud">
+                                    <input type="checkbox" checked value="#GoogleCloud"> #GoogleCloud
+                                </label>
+                                <label class="hashtag-pill" data-hash="#GCP">
+                                    <input type="checkbox" value="#GCP"> #GCP
+                                </label>
+                                <label class="hashtag-pill" data-hash="#DataEngineering">
+                                    <input type="checkbox" value="#DataEngineering"> #DataEngineering
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Tweet Preview Box -->
+                        <div class="tweet-card">
+                            <div class="tweet-header">
+                                <div class="tweet-avatar">BQ</div>
+                                <div class="tweet-user-info">
+                                    <span class="user-display">BigQuery Broadcast</span>
+                                    <span class="user-handle">@bq_release_hub</span>
+                                </div>
+                                <div class="twitter-x-logo">
+                                    <!-- X Logo SVG -->
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="tweet-body">
+                                <textarea id="tweet-textarea" rows="6" maxlength="280" placeholder="Crafting your tweet..."></textarea>
+                            </div>
+                            
+                            <div class="tweet-footer">
+                                <span id="char-counter" class="char-counter">0 / 280</span>
+                                <span id="limit-warning" class="limit-warning hidden">Exceeds 280 chars!</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="builder-actions">
+                            <button id="copy-tweet-btn" class="btn btn-secondary flex-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span>Copy Text</span>
+                            </button>
+                            
+                            <button id="tweet-btn" class="btn btn-accent flex-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                                </svg>
+                                <span>Post to X</span>
+                            </button>
+                        </div>
+                        
+                        <div id="action-toast" class="toast hidden">Copied to clipboard!</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="app-footer">
+            <p>BigQuery Release Hub. Fetching live feed from Google Cloud Platform BigQuery release feeds.</p>
+        </footer>
+    </div>
+</body>
+</html>
